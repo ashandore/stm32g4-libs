@@ -16,14 +16,6 @@ class uart {
 	UART_HandleTypeDef m_handle;
 public:
 	uart(USART_TypeDef *module, uint32_t baud) : m_handle{} {
-        /*##-1- Configure the UART peripheral ######################################*/
-        /* Put the USART peripheral in the Asynchronous mode (UART Mode) */
-        /* UART configured as follows:
-          - Word Length = 8 Bits
-          - Stop Bit = One Stop bit
-          - Parity = None
-          - BaudRate = 9600 baud
-          - Hardware flow control disabled (RTS and CTS signals) */
         m_handle.Instance        = module;
 
         m_handle.Init.BaudRate   = baud;
