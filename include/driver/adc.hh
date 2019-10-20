@@ -1,12 +1,13 @@
 #ifndef STM32G4_LIBS_ADC_HH_
 #define STM32G4_LIBS_ADC_HH_
 
-#include "board.h"
+#include "board.h" //FIXME: need to express this dependency more clearly.
 #include <stdio.h>
 #include <stdarg.h>
 #include <result.hh>
 #include <interface/driver/driver.hh>
 #include "stm32g4xx_hal_adc.h"
+#include <system-error.hh>
 
 
 namespace stm32g4::driver {
@@ -56,11 +57,9 @@ public:
     }
 
     utl::result<void> validate() {
-        if (HAL_ADC_Init(&m_handle) != HAL_OK)
-        {
-            return utl::system_error::UNKNOWN;
-        }
-        return utl::success();
+        auto res = HAL_ADC_Init(&m_handle);
+        if(res == HAL_OK) return utl::success();
+        return res;
     }
 public:
     void start() {}    

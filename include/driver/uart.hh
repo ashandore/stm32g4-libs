@@ -2,20 +2,23 @@
 #define STM32G4_LIBS_UART_HH_
 
 // #include "device/stm32g4xx.h"
-#include "board.h"
+#include "hal.hh"
 #include "stm32g4xx_hal_uart.h"
 
 #include <stdio.h>
 #include <string.h>
 #include <type-list.hh>
 
+#include <result.hh>
+#include <interface/driver/driver.hh>
 
 namespace stm32g4::driver {
 
 template <bool Use_Float>
-class uart {
+class uart : public utl::driver::interface::driver {
 	UART_HandleTypeDef m_handle;
-public:
+
+protected:
 	uart(USART_TypeDef *module, uint32_t baud) : m_handle{} {
         m_handle.Instance        = module;
 
@@ -29,10 +32,19 @@ public:
         m_handle.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
         m_handle.Init.ClockPrescaler = UART_PRESCALER_DIV1;
         m_handle.FifoMode = UART_FIFOMODE_DISABLE;
-        if(HAL_UART_DeInit(&m_handle) != HAL_OK) while(1);
-        if(HAL_UART_Init(&m_handle) != HAL_OK) while(1);
     }
 
+    utl::result<void> validate() {
+        auto res = HAL_UART_DeInit(&m_handle);
+        if(res != HAL_OK) return res;
+        
+        res = HAL_UART_Init(&m_handle);
+        if(res != HAL_OK) return res;
+
+        return utl::success();
+    }
+
+public:
     template <typename... Args>
 	void printf(char const *format, Args... args) {
         static_assert(Use_Float || 
@@ -49,13 +61,21 @@ public:
             length = sniprintf(uart_buffer, 512, format, args...);
         }
 
-        write(uart_buffer, length);
-        write("\r\n", 2);
+        auto res = write(uart_buffer, length);
+        if(!res) return;
+        utl::maybe_unused(write("\r\n", 2));
     }
 
-	void write(char const *string, uint32_t length) {
-        HAL_UART_Transmit(&m_handle, reinterpret_cast<uint8_t*>(const_cast<char*>(string)), 
+	utl::result<void> write(char const *string, uint32_t length) {
+        auto res = HAL_UART_Transmit(&m_handle, reinterpret_cast<uint8_t*>(const_cast<char*>(string)), 
             static_cast<uint16_t>(length), 5000);
+        if(res == HAL_OK) return utl::success();
+        return res;
+    }
+
+    utl::result<void> write(utl::string_view const& s) const {
+        utl::maybe_unused(s);
+        return {};
     }
 };
 
