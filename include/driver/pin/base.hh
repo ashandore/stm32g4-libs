@@ -70,7 +70,7 @@ protected:
 
 public:
     base(GPIO_TypeDef* port, uint16_t pin, active_level level, uint32_t mode, uint32_t pull, uint32_t speed) :
-        m_port{port}, m_active_level{level}
+        m_port{port}, m_handle{}, m_active_level{level}
     {
         //Enable the appropriate clock
         if(m_port == GPIOA) __HAL_RCC_GPIOA_CLK_ENABLE();
