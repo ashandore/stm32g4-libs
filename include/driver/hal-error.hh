@@ -6,7 +6,7 @@
 
 namespace stm32g4 {
 
-using namespace std::literals;
+using namespace utl::literals;
 
 enum class hal_error {
     OK = HAL_OK,
@@ -21,24 +21,26 @@ struct hal_error_category : public utl::error_category {
         auto code = static_cast<hal_error>(value);
         switch(code) {
             case hal_error::OK:
-                return "hal_error::OK"sv;
+                return "hal_error::OK"_sv;
             case hal_error::ERROR:
-                return "hal_error::ERROR"sv;
+                return "hal_error::ERROR"_sv;
             case hal_error::BUSY:
-                return "hal_error::BUSY"sv;
+                return "hal_error::BUSY"_sv;
             case hal_error::TIMEOUT:
-                return "hal_error::TIMEOUT"sv;
+                return "hal_error::TIMEOUT"_sv;
             default:
-                return "Unknown hal_error"sv;
+                return "Unknown hal_error"_sv;
         }
     }
 
     const utl::string_view name() const final {
-        return "uart"sv;
+        return "uart"_sv;
     }    
 };
 
 inline static const hal_error_category _hal_error_category{};
+
+
 
 #if 0
 enum class dcmi_error {
@@ -50,14 +52,14 @@ struct hal_dcmi_error_category : public utl::error_category {
         auto code = static_cast<dcmi_error>(value);
         switch(code) {
             case dcmi_error::OVF:
-                return "dcmi_error::OVF"sv;
+                return "dcmi_error::OVF"_sv;
             default:
-                return "Unknown dcmi_error"sv;
+                return "Unknown dcmi_error"_sv;
         }
     }
 
     const utl::string_view name() const final {
-        return "dcmi"sv;
+        return "dcmi"_sv;
     }    
 };
 
@@ -78,14 +80,14 @@ struct hal_adc_error_category : public utl::error_category {
         auto code = static_cast<adc_error>(value);
         switch(code) {
             case adc_error::NONE:
-                return "adc_error::NONE"sv;
+                return "adc_error::NONE"_sv;
             default:
-                return "Unknown adc_error"sv;
+                return "Unknown adc_error"_sv;
         }
     }
 
     const utl::string_view name() const final {
-        return "adc"sv;
+        return "adc"_sv;
     }    
 };
 
@@ -102,14 +104,14 @@ struct hal_comp_error_category : public utl::error_category {
         auto code = static_cast<comp_error>(value);
         switch(code) {
             case comp_error::NONE:
-                return "comp_error::NONE"sv;
+                return "comp_error::NONE"_sv;
             default:
-                return "Unknown comp_error"sv;
+                return "Unknown comp_error"_sv;
         }
     }
 
     const utl::string_view name() const final {
-        return "comp"sv;
+        return "comp"_sv;
     }    
 };
 
@@ -130,14 +132,14 @@ struct hal_cordic_error_category : public utl::error_category {
         auto code = static_cast<cordic_error>(value);
         switch(code) {
             case cordic_error::NONE:
-                return "cordic_error::NONE"sv;
+                return "cordic_error::NONE"_sv;
             default:
-                return "Unknown cordic_error"sv;
+                return "Unknown cordic_error"_sv;
         }
     }
 
     const utl::string_view name() const final {
-        return "cordic"sv;
+        return "cordic"_sv;
     }    
 };
 
@@ -161,14 +163,14 @@ struct hal_cryp_error_category : public utl::error_category {
         auto code = static_cast<cryp_error>(value);
         switch(code) {
             case cryp_error::NONE:
-                return "cryp_error::NONE"sv;
+                return "cryp_error::NONE"_sv;
             default:
-                return "Unknown cryp_error"sv;
+                return "Unknown cryp_error"_sv;
         }
     }
 
     const utl::string_view name() const final {
-        return "cryp"sv;
+        return "cryp"_sv;
     }    
 };
 
@@ -189,14 +191,14 @@ struct hal_dac_error_category : public utl::error_category {
         auto code = static_cast<dac_error>(value);
         switch(code) {
             case dac_error::NONE:
-                return "dac_error::NONE"sv;
+                return "dac_error::NONE"_sv;
             default:
-                return "Unknown dac_error"sv;
+                return "Unknown dac_error"_sv;
         }
     }
 
     const utl::string_view name() const final {
-        return "dac"sv;
+        return "dac"_sv;
     }    
 };
 
@@ -218,14 +220,14 @@ struct hal_dma_error_category : public utl::error_category {
         auto code = static_cast<dma_error>(value);
         switch(code) {
             case dma_error::NONE:
-                return "dma_error::NONE"sv;
+                return "dma_error::NONE"_sv;
             default:
-                return "Unknown dma_error"sv;
+                return "Unknown dma_error"_sv;
         }
     }
 
     const utl::string_view name() const final {
-        return "dma"sv;
+        return "dma"_sv;
     }    
 };
 
@@ -257,14 +259,14 @@ struct hal_fdcan_error_category : public utl::error_category {
         auto code = static_cast<fdcan_error>(value);
         switch(code) {
             case fdcan_error::NONE:
-                return "fdcan_error::NONE"sv;
+                return "fdcan_error::NONE"_sv;
             default:
-                return "Unknown fdcan_error"sv;
+                return "Unknown fdcan_error"_sv;
         }
     }
 
     const utl::string_view name() const final {
-        return "fdcan"sv;
+        return "fdcan"_sv;
     }    
 };
 
@@ -288,14 +290,14 @@ struct hal_fmac_error_category : public utl::error_category {
         auto code = static_cast<fmac_error>(value);
         switch(code) {
             case fmac_error::NONE:
-                return "fmac_error::NONE"sv;
+                return "fmac_error::NONE"_sv;
             default:
-                return "Unknown fmac_error"sv;
+                return "Unknown fmac_error"_sv;
         }
     }
 
     const utl::string_view name() const final {
-        return "fmac"sv;
+        return "fmac"_sv;
     }    
 };
 
@@ -321,14 +323,14 @@ struct hal_i2c_error_category : public utl::error_category {
         auto code = static_cast<i2c_error>(value);
         switch(code) {
             case i2c_error::NONE:
-                return "i2c_error::NONE"sv;
+                return "i2c_error::NONE"_sv;
             default:
-                return "Unknown i2c_error"sv;
+                return "Unknown i2c_error"_sv;
         }
     }
 
     const utl::string_view name() const final {
-        return "i2c"sv;
+        return "i2c"_sv;
     }    
 };
 
@@ -351,14 +353,14 @@ struct hal_irda_error_category : public utl::error_category {
         auto code = static_cast<irda_error>(value);
         switch(code) {
             case irda_error::NONE:
-                return "irda_error::NONE"sv;
+                return "irda_error::NONE"_sv;
             default:
-                return "Unknown irda_error"sv;
+                return "Unknown irda_error"_sv;
         }
     }
 
     const utl::string_view name() const final {
-        return "irda"sv;
+        return "irda"_sv;
     }    
 };
 
@@ -374,14 +376,14 @@ struct hal_pcd_error_category : public utl::error_category {
         auto code = static_cast<pcd_error>(value);
         switch(code) {
             case pcd_error::INVALID_CALLBACK:
-                return "pcd_error::INVALID_CALLBACK"sv;
+                return "pcd_error::INVALID_CALLBACK"_sv;
             default:
-                return "Unknown pcd_error"sv;
+                return "Unknown pcd_error"_sv;
         }
     }
 
     const utl::string_view name() const final {
-        return "pcd"sv;
+        return "pcd"_sv;
     }    
 };
 
@@ -399,14 +401,14 @@ struct hal_rng_error_category : public utl::error_category {
         auto code = static_cast<rng_error>(value);
         switch(code) {
             case rng_error::NONE:
-                return "rng_error::NONE"sv;
+                return "rng_error::NONE"_sv;
             default:
-                return "Unknown rng_error"sv;
+                return "Unknown rng_error"_sv;
         }
     }
 
     const utl::string_view name() const final {
-        return "rng"sv;
+        return "rng"_sv;
     }    
 };
 
@@ -428,26 +430,26 @@ struct hal_uart_error_category : public utl::error_category {
         auto code = static_cast<uart_error>(value);
         switch(code) {
             case uart_error::NONE:
-                return "uart_error::NONE"sv;
+                return "uart_error::NONE"_sv;
             case uart_error::PE:
-                return "uart_error::PE"sv;
+                return "uart_error::PE"_sv;
             case uart_error::NE:
-                return "uart_error::NE"sv;
+                return "uart_error::NE"_sv;
             case uart_error::FE:
-                return "uart_error::FE"sv;
+                return "uart_error::FE"_sv;
             case uart_error::ORE:
-                return "uart_error::ORE"sv;
+                return "uart_error::ORE"_sv;
             case uart_error::DMA:
-                return "uart_error::DMA"sv;
+                return "uart_error::DMA"_sv;
             case uart_error::INVALID_CALLBACK:
-                return "uart_error::INVALID_CALLBACK"sv;
+                return "uart_error::INVALID_CALLBACK"_sv;
             default:
-                return "Unknown uart_error"sv;
+                return "Unknown uart_error"_sv;
         }
     }
 
     const utl::string_view name() const final {
-        return "uart"sv;
+        return "uart"_sv;
     }    
 };
 
@@ -462,28 +464,29 @@ template <>
 struct utl::is_error_code_enum<stm32g4::hal_error> : std::true_type {};
 
 template <>
-struct utl::is_error_code_enum<HAL_StatusTypeDef> : std::true_type {};
-
-template <>
 constexpr utl::error_code utl::make_error_code<stm32g4::hal_error>(stm32g4::hal_error code) {
     return {static_cast<int32_t>(code), &stm32g4::_hal_error_category};
 }
 
-template <>
-constexpr utl::error_code utl::make_error_code<HAL_StatusTypeDef>(HAL_StatusTypeDef code) {
+
+namespace stm32g4 {
+
+constexpr utl::error_code make_hal_error_code(HAL_StatusTypeDef code) {
     switch(code) {
         case HAL_OK:
-            return make_error_code(stm32g4::hal_error::OK);
+            return utl::make_error_code(hal_error::OK);
         case HAL_ERROR:
-            return make_error_code(stm32g4::hal_error::ERROR);
+            return utl::make_error_code(hal_error::ERROR);
         case HAL_BUSY:
-            return make_error_code(stm32g4::hal_error::BUSY);
+            return utl::make_error_code(hal_error::BUSY);
         case HAL_TIMEOUT:
-            return make_error_code(stm32g4::hal_error::TIMEOUT);
+            return utl::make_error_code(hal_error::TIMEOUT);
         default:
-            return make_error_code(stm32g4::hal_error::UNKNOWN);
+            return utl::make_error_code(hal_error::UNKNOWN);
     }
 }
+
+} //namespace stm32g4
 
 #if 0
 

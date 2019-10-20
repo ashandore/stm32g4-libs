@@ -16,7 +16,7 @@ namespace stm32g4::driver {
 
 template <bool Use_Float>
 class uart : public utl::driver::interface::driver {
-	UART_HandleTypeDef m_handle;
+	mutable UART_HandleTypeDef m_handle;
 
 protected:
 	uart(USART_TypeDef *module, uint32_t baud) : m_handle{} {
@@ -36,17 +36,17 @@ protected:
 
     utl::result<void> validate() {
         auto res = HAL_UART_DeInit(&m_handle);
-        if(res != HAL_OK) return res;
+        if(res != HAL_OK) return stm32g4::make_hal_error_code(res);
         
         res = HAL_UART_Init(&m_handle);
-        if(res != HAL_OK) return res;
+        if(res != HAL_OK) return stm32g4::make_hal_error_code(res);
 
         return utl::success();
     }
 
 public:
     template <typename... Args>
-	void printf(char const *format, Args... args) {
+	void printf(char const *format, Args... args) const {
         static_assert(Use_Float || 
             (!utl::contains_v<utl::type_list<Args...>,float> && !utl::contains_v<utl::type_list<Args...>,double>),
             "floating point printing is disabled!");
@@ -61,21 +61,18 @@ public:
             length = sniprintf(uart_buffer, 512, format, args...);
         }
 
-        auto res = write(uart_buffer, length);
-        if(!res) return;
-        utl::maybe_unused(write("\r\n", 2));
-    }
-
-	utl::result<void> write(char const *string, uint32_t length) {
-        auto res = HAL_UART_Transmit(&m_handle, reinterpret_cast<uint8_t*>(const_cast<char*>(string)), 
-            static_cast<uint16_t>(length), 5000);
-        if(res == HAL_OK) return utl::success();
-        return res;
+        auto res = write({uart_buffer, length});
+        if(!res) {
+            return;
+        }
+        utl::ignore_result(write({"\r\n", 2}));
     }
 
     utl::result<void> write(utl::string_view const& s) const {
-        utl::maybe_unused(s);
-        return {};
+        auto res = HAL_UART_Transmit(&m_handle, reinterpret_cast<uint8_t*>(const_cast<char*>(s.data())), 
+            static_cast<uint16_t>(s.size()), 5000);
+        if(res == HAL_OK) return utl::success();
+        return stm32g4::make_hal_error_code(res);
     }
 };
 

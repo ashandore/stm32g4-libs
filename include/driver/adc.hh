@@ -27,18 +27,16 @@ class adc : public utl::driver::interface::driver {
 public:
     using adc_channel_t = adc_channel<adc>;
 private:
-    uint32_t                    m_timeout;
     mutable ADC_HandleTypeDef   m_handle;
+    uint32_t                    m_timeout;
     float                       m_supply;
 public:
     adc(ADC_TypeDef *module, uint32_t timeout, float supply) :
-        m_timeout{timeout}, m_supply{supply}
+        m_handle{}, m_timeout{timeout}, m_supply{supply}
     {
-        m_supply = supply;
-        if (timeout > 1000) {
-            timeout = 1000;
+        if(m_timeout > 1000) {
+            m_timeout = 1000;
         }
-        m_timeout = timeout;
 
         m_handle.Instance = module;
 
@@ -59,7 +57,7 @@ public:
     utl::result<void> validate() {
         auto res = HAL_ADC_Init(&m_handle);
         if(res == HAL_OK) return utl::success();
-        return res;
+        return stm32g4::make_hal_error_code(res);
     }
 public:
     void start() {}    
@@ -69,20 +67,17 @@ public:
         ADC_ChannelConfTypeDef channel_config;
         /**Configure Regular Channel*/
         channel_config.Channel      = channel;
-        channel_config.Rank         = 1;
+        channel_config.Rank         = ADC_REGULAR_RANK_1;
         channel_config.SamplingTime = ADC_SAMPLETIME_3CYCLES_5;
+        channel_config.SingleDiff = ADC_SINGLE_ENDED;
+        channel_config.OffsetNumber = ADC_OFFSET_NONE;
         channel_config.Offset       = 0;
 
-        if (HAL_ADC_ConfigChannel(&m_handle, &channel_config) != HAL_OK)
-        {
-            return utl::system_error::UNKNOWN;
-        }
+        auto res = HAL_ADC_ConfigChannel(&m_handle, &channel_config);
+        if(res != HAL_OK) return stm32g4::make_hal_error_code(res);
 
-        if(HAL_ADC_Start(&m_handle) != HAL_OK)
-        {
-            /* Start Conversation Error */
-            return utl::system_error::UNKNOWN;
-        }
+        res = HAL_ADC_Start(&m_handle);
+        if(res != HAL_OK) return stm32g4::make_hal_error_code(res);
 
         /*##-4- Wait for the end of conversion #####################################*/  
         /*  Before starting a new conversion, you need to check the current state of 
@@ -100,7 +95,7 @@ public:
             return static_cast<uint16_t>(HAL_ADC_GetValue(&m_handle));
         }
 
-        return utl::system_error::UNKNOWN;
+        return stm32g4::hal_error::ERROR;
     }
 
     void set_timeout(uint32_t timeout) {
