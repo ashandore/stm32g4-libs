@@ -1,15 +1,16 @@
 #ifndef STM32G4_LIBS_UART_HH_
 #define STM32G4_LIBS_UART_HH_
 
-#include "device/stm32g4xx.h"
+// #include "device/stm32g4xx.h"
 #include "board.h"
+#include "stm32g4xx_hal_uart.h"
+
 #include <stdio.h>
 #include <string.h>
 #include <type-list.hh>
 
 
-namespace drivers {
-namespace stm32g4 {
+namespace stm32g4::driver {
 
 template <bool Use_Float>
 class uart {
@@ -58,7 +59,6 @@ public:
     }
 };
 
-} //namespace stm32g4
-} //namespace drivers
+} //namespace stm32g4::driver
 
 #endif
