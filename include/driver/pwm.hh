@@ -6,15 +6,25 @@
 #include "stm32g4xx_hal_tim_ex.h"
 #include <result.hh>
 #include <interface/driver/driver.hh>
+#include <interface/driver/pwm.hh>
 
 extern "C" void HAL_TIM_MspPostInit(TIM_HandleTypeDef* timHandle);
 
-namespace stm32g4::driver {
+namespace stm32g4::driver::pwm {
 
-class pwm : public utl::driver::interface::driver {
+enum class channel_id {
+    CHANNEL_1 = TIM_CHANNEL_1,
+    CHANNEL_2 = TIM_CHANNEL_2,
+    CHANNEL_3 = TIM_CHANNEL_3,
+    CHANNEL_4 = TIM_CHANNEL_4,
+    CHANNEL_5 = TIM_CHANNEL_5,
+    CHANNEL_6 = TIM_CHANNEL_6
+};
+
+class source : public utl::driver::interface::driver {
     TIM_HandleTypeDef       m_handle;
 protected:
-    pwm(TIM_TypeDef *timer, uint32_t period) 
+    source(TIM_TypeDef *timer, uint32_t period) 
         : m_handle{}
     {
         m_handle.Instance = timer;
@@ -52,18 +62,41 @@ protected:
         sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
         sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
         
-        res = HAL_TIM_PWM_ConfigChannel(&m_handle, &sConfigOC, TIM_CHANNEL_2);
+        res = HAL_TIM_PWM_ConfigChannel(&m_handle, &sConfigOC, TIM_CHANNEL_1);
         if(res != HAL_OK) return stm32g4::make_hal_error_code(res);
 
-        HAL_TIM_MspPostInit(&m_handle);
+        HAL_TIM_MspPostInit(&m_handle);        
 
         return utl::success();
     }
 public:
+    using channel_id_t = channel_id;
+    using channel_t = utl::driver::pwm::interface::channel<source>;
 
+    const channel_t make_channel(channel_id_t channel) {
+        return channel_t{*this,channel};
+    }
+
+    utl::result<void> start(channel_id_t channel) {
+        auto res = HAL_TIM_PWM_Start(&m_handle, static_cast<uint32_t>(channel));
+        if(res != HAL_OK) return stm32g4::make_hal_error_code(res);
+        return utl::success();
+    }
+
+    utl::result<void> stop(channel_id_t channel) {
+        auto res = HAL_TIM_PWM_Stop(&m_handle, static_cast<uint32_t>(channel));
+        if(res != HAL_OK) return stm32g4::make_hal_error_code(res);
+        return utl::success();
+    }
+
+    // void set_duty(channel_id_t channel);
+
+    // void set_period();
 };
 
-} //namespace stm32g4::driver
+using channel_t = source::channel_t;
+
+} //namespace stm32g4::driver::pwm
 
 
 
