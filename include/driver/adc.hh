@@ -68,7 +68,7 @@ public:
         /**Configure Regular Channel*/
         channel_config.Channel      = channel;
         channel_config.Rank         = ADC_REGULAR_RANK_1;
-        channel_config.SamplingTime = ADC_SAMPLETIME_3CYCLES_5;
+        channel_config.SamplingTime = ADC_SAMPLETIME_47CYCLES_5;
         channel_config.SingleDiff = ADC_SINGLE_ENDED;
         channel_config.OffsetNumber = ADC_OFFSET_NONE;
         channel_config.Offset       = 0;
@@ -79,19 +79,11 @@ public:
         res = HAL_ADC_Start(&m_handle);
         if(res != HAL_OK) return stm32g4::make_hal_error_code(res);
 
-        /*##-4- Wait for the end of conversion #####################################*/  
-        /*  Before starting a new conversion, you need to check the current state of 
-            the peripheral; if it’s busy you need to wait for the end of current
-            conversion before starting a new one.
-            For simplicity reasons, this example is just waiting till the end of the 
-            conversion, but application may perform other tasks while conversion 
-            operation is ongoing. */
         HAL_ADC_PollForConversion(&m_handle, 10);
 
         /* Check if the continuous conversion of regular channel is finished */
         if((HAL_ADC_GetState(&m_handle) & HAL_ADC_STATE_EOC_REG) == HAL_ADC_STATE_EOC_REG)
         {
-            /*##-5- Get the converted value of regular channel  ######################*/
             return static_cast<uint16_t>(HAL_ADC_GetValue(&m_handle));
         }
 
