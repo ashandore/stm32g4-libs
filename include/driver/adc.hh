@@ -14,13 +14,13 @@ namespace stm32g4::driver {
 
 template <class Adc>
 class adc_channel {
-    Adc const * const   m_adc;
-    uint32_t const      m_channel;
+    Adc const&      m_adc;
+    uint32_t const  m_channel;
 public:
-    adc_channel(Adc *const master, uint32_t channel) : m_adc{master}, m_channel{channel} {}
-    utl::result<uint16_t> conversion() const { return m_adc->conversion(m_channel); }
-    float to_voltage(uint16_t conversion) const { return m_adc->to_voltage(conversion); }
-    float supply() const { return m_adc->supply(); }
+    adc_channel(Adc const& master, uint32_t channel) : m_adc{master}, m_channel{channel} {}
+    utl::result<uint16_t> conversion() const { return m_adc.conversion(m_channel); }
+    float to_voltage(uint16_t conversion) const { return m_adc.to_voltage(conversion); }
+    float supply() const { return m_adc.supply(); }
 };
 
 class adc : public utl::driver::interface::driver {
@@ -106,7 +106,7 @@ public:
     }
 
     adc_channel_t channel(uint8_t channel) {
-		return {this, channel};
+		return {*this, channel};
 	}
 };
 
