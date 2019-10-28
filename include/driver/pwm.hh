@@ -100,18 +100,18 @@ protected:
         TIM_OC_InitTypeDef sConfigOC = {0};        
         
         auto res = HAL_TIM_Base_Init(&m_handle);
-        if(res != HAL_OK) return stm32g4::make_hal_error_code(res);
+        if(res != HAL_OK) return make_hal_error_code(res);
 
         sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
         
         res = HAL_TIM_ConfigClockSource(&m_handle, &sClockSourceConfig);
-        if(res != HAL_OK) return stm32g4::make_hal_error_code(res);
+        if(res != HAL_OK) return make_hal_error_code(res);
 
         sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
         sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
         
         res = HAL_TIMEx_MasterConfigSynchronization(&m_handle, &sMasterConfig);
-        if(res != HAL_OK) return stm32g4::make_hal_error_code(res);        
+        if(res != HAL_OK) return make_hal_error_code(res);        
 
         HAL_TIM_MspPostInit(&m_handle);       
 
@@ -134,7 +134,7 @@ protected:
         }
 
         auto res = HAL_TIM_PWM_ConfigChannel(&m_handle, &channelConfig, static_cast<uint32_t>(channel));
-        if(res != HAL_OK) return stm32g4::make_hal_error_code(res);
+        if(res != HAL_OK) return make_hal_error_code(res);
         return utl::success();
     }
 public:
@@ -143,20 +143,20 @@ public:
         return channel_t{*this,channel,pol};
     }
 
-    void link_dma(dma& config, uint16_t handler) {
-        config.link(m_handle,handler);
+    void link_dma(dma::channel& channel, uint16_t handler) {
+        channel.link(m_handle,handler);
     }
 
     utl::result<void> start() {
         auto res = HAL_TIM_PWM_Init(&m_handle);
-        if(res != HAL_OK) return stm32g4::make_hal_error_code(res);
+        if(res != HAL_OK) return make_hal_error_code(res);
         __HAL_TIM_ENABLE_IT(&m_handle, TIM_IT_UPDATE); 
         return utl::success();
     }
 
     utl::result<void> stop() {
         auto res = HAL_TIM_PWM_DeInit(&m_handle);
-        if(res != HAL_OK) return stm32g4::make_hal_error_code(res);
+        if(res != HAL_OK) return make_hal_error_code(res);
         __HAL_TIM_DISABLE_IT(&m_handle, TIM_IT_UPDATE); 
         return utl::success();
     }
@@ -166,7 +166,7 @@ public:
         if(!res) return res;
 
         auto hal_res = HAL_TIM_PWM_Start(&m_handle, static_cast<uint32_t>(channel));
-        if(hal_res != HAL_OK) return stm32g4::make_hal_error_code(hal_res);
+        if(hal_res != HAL_OK) return make_hal_error_code(hal_res);
         return utl::success();
     }
 
@@ -177,19 +177,19 @@ public:
 
         auto hal_res = HAL_TIM_PWM_Start_DMA(&m_handle, static_cast<uint32_t>(channel), data, length/4);
         // if(length % 4 != 0) utl::log("WARNING: PWM DMA wants multiples of 4 bytes.");
-        if(hal_res != HAL_OK) return stm32g4::make_hal_error_code(hal_res);
+        if(hal_res != HAL_OK) return make_hal_error_code(hal_res);
         return utl::success();
     }
 
     utl::result<void> stop(channel_id_t channel) {
         auto res = HAL_TIM_PWM_Stop(&m_handle, static_cast<uint32_t>(channel));
-        if(res != HAL_OK) return stm32g4::make_hal_error_code(res);
+        if(res != HAL_OK) return make_hal_error_code(res);
         return utl::success();
     }
 
     utl::result<void> stop_dma(channel_id_t channel) {
         auto res = HAL_TIM_PWM_Stop_DMA(&m_handle, static_cast<uint32_t>(channel));
-        if(res != HAL_OK) return stm32g4::make_hal_error_code(res);
+        if(res != HAL_OK) return make_hal_error_code(res);
         return utl::success();
     }
 
