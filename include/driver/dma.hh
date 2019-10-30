@@ -49,8 +49,10 @@ enum class priority {
 
 class channel {
     DMA_HandleTypeDef   m_handle;
+
+
 protected:
-    channel(DMA_Channel_TypeDef* instance, request req, direction dir,
+    constexpr channel(DMA_Channel_TypeDef* instance, request req, direction dir,
         p_increment periph_inc, m_increment mem_inc, p_align periph_data_align,
         m_align mem_data_align, mode mode, priority priority) 
         : m_handle{} 
@@ -64,12 +66,30 @@ protected:
         m_handle.Init.MemDataAlignment = static_cast<uint32_t>(mem_data_align);
         m_handle.Init.Mode = static_cast<uint32_t>(mode);
         m_handle.Init.Priority = static_cast<uint32_t>(priority);
-
-        __HAL_RCC_DMAMUX1_CLK_ENABLE();
-        __HAL_RCC_DMA1_CLK_ENABLE();
     }
 
     utl::result<void> validate() {
+        if(m_handle.Instance == DMA1_Channel1 ||
+            m_handle.Instance == DMA1_Channel2 ||
+            m_handle.Instance == DMA1_Channel3 ||
+            m_handle.Instance == DMA1_Channel4 ||
+            m_handle.Instance == DMA1_Channel5 ||
+            m_handle.Instance == DMA1_Channel6
+        ) {            
+            __HAL_RCC_DMA1_CLK_ENABLE();
+        } else if(m_handle.Instance == DMA2_Channel1 ||
+            m_handle.Instance == DMA2_Channel2 ||
+            m_handle.Instance == DMA2_Channel3 ||
+            m_handle.Instance == DMA2_Channel4 ||
+            m_handle.Instance == DMA2_Channel5 ||
+            m_handle.Instance == DMA2_Channel6
+        ) {
+            __HAL_RCC_DMA2_CLK_ENABLE();
+        }
+
+        __HAL_RCC_DMAMUX1_CLK_ENABLE();
+
+
         auto res = HAL_DMA_Init(&m_handle);
         if(res != HAL_OK) return make_hal_error_code(res);
         return utl::success();
@@ -79,12 +99,43 @@ public:
     void link(T& handle, uint16_t handler) {
         __HAL_LINKDMA(&handle,hdma[handler],m_handle);
 
+
         if(m_handle.Instance == DMA1_Channel1) {
-            //FIXME: fixed priority
             HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 0, 0);
             HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
-        } else {
-
+        } else if(m_handle.Instance == DMA1_Channel2) {
+            HAL_NVIC_SetPriority(DMA1_Channel2_IRQn, 0, 0);
+            HAL_NVIC_EnableIRQ(DMA1_Channel2_IRQn);
+        } else if(m_handle.Instance == DMA1_Channel3) {
+            HAL_NVIC_SetPriority(DMA1_Channel3_IRQn, 0, 0);
+            HAL_NVIC_EnableIRQ(DMA1_Channel3_IRQn);
+        } else if(m_handle.Instance == DMA1_Channel4) {
+            HAL_NVIC_SetPriority(DMA1_Channel4_IRQn, 0, 0);
+            HAL_NVIC_EnableIRQ(DMA1_Channel4_IRQn);
+        } else if(m_handle.Instance == DMA1_Channel5) {
+            HAL_NVIC_SetPriority(DMA1_Channel5_IRQn, 0, 0);
+            HAL_NVIC_EnableIRQ(DMA1_Channel5_IRQn);
+        } else if(m_handle.Instance == DMA1_Channel6) {
+            HAL_NVIC_SetPriority(DMA1_Channel6_IRQn, 0, 0);
+            HAL_NVIC_EnableIRQ(DMA1_Channel6_IRQn);
+        } else if(m_handle.Instance == DMA2_Channel1) {
+            HAL_NVIC_SetPriority(DMA2_Channel1_IRQn, 0, 0);
+            HAL_NVIC_EnableIRQ(DMA2_Channel1_IRQn);
+        } else if(m_handle.Instance == DMA2_Channel2) {
+            HAL_NVIC_SetPriority(DMA2_Channel2_IRQn, 0, 0);
+            HAL_NVIC_EnableIRQ(DMA2_Channel2_IRQn);
+        } else if(m_handle.Instance == DMA2_Channel3) {
+            HAL_NVIC_SetPriority(DMA2_Channel3_IRQn, 0, 0);
+            HAL_NVIC_EnableIRQ(DMA2_Channel3_IRQn);
+        } else if(m_handle.Instance == DMA2_Channel4) {
+            HAL_NVIC_SetPriority(DMA2_Channel4_IRQn, 0, 0);
+            HAL_NVIC_EnableIRQ(DMA2_Channel4_IRQn);
+        } else if(m_handle.Instance == DMA2_Channel5) {
+            HAL_NVIC_SetPriority(DMA2_Channel5_IRQn, 0, 0);
+            HAL_NVIC_EnableIRQ(DMA2_Channel5_IRQn);
+        } else if(m_handle.Instance == DMA2_Channel6) {
+            HAL_NVIC_SetPriority(DMA2_Channel6_IRQn, 0, 0);
+            HAL_NVIC_EnableIRQ(DMA2_Channel6_IRQn);
         }
     }
 

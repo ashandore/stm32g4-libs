@@ -8,11 +8,13 @@
 #include <interface/driver/driver.hh>
 #include <interface/driver/pwm.hh>
 #include <driver/dma.hh>
+#include <utl.hh>
 
 extern "C" void HAL_TIM_MspPostInit(TIM_HandleTypeDef* timHandle);
 
 namespace stm32g4::driver::pwm {
 
+using namespace utl::literals;
 using polarity = utl::driver::pwm::interface::polarity;
 
 enum class channel_id {
@@ -24,16 +26,21 @@ enum class channel_id {
     CHANNEL_6 = TIM_CHANNEL_6
 };
 
+//FIXME: this should take a time unit as a policy.
+//TODO: make unit types & literals (handle conversions, etc)
+
+template <typename Precision>
 class source : public utl::driver::interface::driver {  
 public:  
     using polarity_t = utl::driver::pwm::interface::polarity;
     using channel_id_t = channel_id;
     using channel_t = utl::driver::pwm::interface::channel<source>;
     using dma_channel_t = utl::driver::pwm::interface::dma_channel<source>;
+    using time_t = Precision;
 private:
     TIM_HandleTypeDef       m_handle;
-    uint32_t                m_period_ns;
-    float                   m_ticks_ns;
+    time_t                  m_period;
+    float                   m_ticks_per_ns;
 
     static uint32_t get_source_clock_hz(TIM_TypeDef *module) {
         RCC_ClkInitTypeDef clkConfig;
@@ -57,20 +64,20 @@ private:
         return 0;         
     }
 
-    uint32_t ns_to_count(uint32_t period_ns) const {
-        return static_cast<uint32_t>(period_ns*m_ticks_ns);
+    uint32_t time_to_count(time_t period) const {
+        return static_cast<uint32_t>(period.value*m_ticks_per_ns);
     }
 
-    uint32_t count_to_ns(uint32_t count) const {
-        return static_cast<uint32_t>(count/m_ticks_ns);
+    time_t count_to_time(uint32_t count) const {
+        return time_t{static_cast<uint32_t>(count/m_ticks_per_ns)};
     }
 
-    uint32_t calc_prescaler(uint32_t period_ns) {
+    uint32_t calc_prescaler(time_t period) {
         //Calculate the minimum prescaler value that is necessary
         //to configure the provided period value.
         //We want the minimum value because that will provide us with
         //the highest time resolution possible.
-        const float desired_tick_time_ns = static_cast<float>(period_ns)/65535.0;
+        const float desired_tick_time_ns = static_cast<float>(period.value)/65535.0;
         const float source_ticks_ns = get_source_clock_hz(m_handle.Instance)/1000000000.0f;
         //the extra addition/subtraction gives the ceiling of the result
         const uint32_t min_psc = static_cast<uint32_t>(source_ticks_ns*desired_tick_time_ns + 1) - 1;
@@ -81,17 +88,17 @@ private:
     }
 
 protected:
-    source(TIM_TypeDef *timer, uint32_t period_ns) 
-        : m_handle{}, m_period_ns{period_ns}, m_ticks_ns{}
+    source(TIM_TypeDef *timer, time_t period) 
+        : m_handle{}, m_period{period}, m_ticks_per_ns{}
     {
         m_handle.Instance = timer;
-        m_handle.Init.Prescaler = calc_prescaler(m_period_ns);
+        m_handle.Init.Prescaler = calc_prescaler(m_period);
         m_handle.Init.CounterMode = TIM_COUNTERMODE_UP;
-        m_handle.Init.Period = ns_to_count(m_period_ns);
+        m_handle.Init.Period = time_to_count(m_period);
         m_handle.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
         m_handle.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;        
 
-        m_ticks_ns = (get_source_clock_hz(m_handle.Instance))/(m_handle.Init.Prescaler + 1)/1000000000.0f;
+        m_ticks_per_ns = (get_source_clock_hz(m_handle.Instance))/(m_handle.Init.Prescaler + 1)/1000000000.0f;
     }
 
     utl::result<void> validate() {
@@ -175,7 +182,7 @@ public:
         auto res = configure_channel(channel, pol);
         if(!res) return res;
 
-        auto hal_res = HAL_TIM_PWM_Start_DMA(&m_handle, static_cast<uint32_t>(channel), data, length/4);
+        auto hal_res = HAL_TIM_PWM_Start_DMA(&m_handle, static_cast<uint32_t>(channel), data, length);
         // if(length % 4 != 0) utl::log("WARNING: PWM DMA wants multiples of 4 bytes.");
         if(hal_res != HAL_OK) return make_hal_error_code(hal_res);
         return utl::success();
@@ -193,41 +200,41 @@ public:
         return utl::success();
     }
 
-    void set_period_ns(uint32_t period_ns) {
-        if(period_ns < 10) period_ns = 10;
-        //period is in microseconds. Convert to raw counts.
-        m_period_ns = period_ns;
+    void set_period(time_t period) {
+        if(period < 10_ns) m_period = 10_ns;
+        else m_period = period;
 
         //Update the prescaler if necessary
-        const uint32_t prescaler = calc_prescaler(m_period_ns);
+        const uint32_t prescaler = calc_prescaler(m_period);
         __HAL_TIM_SET_PRESCALER(&m_handle, prescaler);
         m_handle.Init.Prescaler = prescaler;
 
         //Update the period value
-        __HAL_TIM_SET_AUTORELOAD(&m_handle, ns_to_count(m_period_ns));
+        __HAL_TIM_SET_AUTORELOAD(&m_handle, time_to_count(m_period));
     }
 
-    uint32_t period_ns() const {
-        return m_period_ns;
+    time_t period() const {
+        return m_period;
     }
 
-    void set_width_ns(channel_id_t channel, uint32_t width_ns) {
-        const uint32_t width_count = ns_to_count(width_ns);
+    void set_width(channel_id_t channel, time_t width) {
+        const uint32_t width_count = time_to_count(width);
         __HAL_TIM_SET_COMPARE(&m_handle, static_cast<uint32_t>(channel), width_count);
     }
 
-    uint32_t width_ns(channel_id_t channel) const {
+    time_t width(channel_id_t channel) const {
         uint32_t value = __HAL_TIM_GET_COMPARE(&m_handle, static_cast<uint32_t>(channel));        
-        return count_to_ns(value);
+        return count_to_time(value);
+    }
+
+    constexpr uint32_t width_to_dma_value(time_t width) const {
+        return time_to_count(width);
     }
 
     void clear_interrupt() {
         __HAL_TIM_CLEAR_IT(&m_handle, TIM_IT_UPDATE);
     }
 };
-
-using channel_t = source::channel_t;
-using dma_channel_t = source::dma_channel_t;
 
 } //namespace stm32g4::driver::pwm
 
