@@ -69,9 +69,7 @@ protected:
         m_pwm_channel.set_polarity(Pwm::polarity_t::ACTIVE_LOW);
         m_pwm_source.set_period(1250_ns);
         
-
-        //fixme: this is channel specific!
-        m_pwm_source.link_dma(m_dma_channel, TIM_DMA_ID_CC1);
+        m_pwm_channel.link_dma(m_dma_channel);
     }
 
     utl::result<void> validate() {
@@ -113,7 +111,7 @@ public:
         }
 
         m_write_buffer[sizeof(m_write_buffer)/sizeof(m_write_buffer[0]) - 1] = 0;        
-       return m_pwm_channel.start(reinterpret_cast<uint32_t*>(m_write_buffer), sizeof(m_write_buffer)/sizeof(m_write_buffer[0]));
+        return m_pwm_channel.start(reinterpret_cast<uint32_t*>(m_write_buffer), sizeof(m_write_buffer)/sizeof(m_write_buffer[0]));
     }
 };
 

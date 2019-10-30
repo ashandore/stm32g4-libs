@@ -35,7 +35,7 @@ public:
     using polarity_t = utl::driver::pwm::interface::polarity;
     using channel_id_t = channel_id;
     using channel_t = utl::driver::pwm::interface::channel<source>;
-    using dma_channel_t = utl::driver::pwm::interface::dma_channel<source>;
+    using dma_channel_t = utl::driver::pwm::interface::dma_channel<source, dma::channel>;
     using time_t = Precision;
 private:
     TIM_HandleTypeDef       m_handle;
@@ -150,8 +150,22 @@ public:
         return channel_t{*this,channel,pol};
     }
 
-    void link_dma(dma::channel& channel, uint16_t handler) {
-        channel.link(m_handle,handler);
+    void link_dma(channel_id_t channel, dma::channel& dma) {
+        switch(channel) {
+            case channel_id_t::CHANNEL_1:
+                dma.link(m_handle,TIM_DMA_ID_CC1);
+                return;
+            case channel_id_t::CHANNEL_2:
+                dma.link(m_handle,TIM_DMA_ID_CC2);
+                return;
+            case channel_id_t::CHANNEL_3:
+                dma.link(m_handle,TIM_DMA_ID_CC3);
+                return;
+            case channel_id_t::CHANNEL_4:
+                dma.link(m_handle,TIM_DMA_ID_CC4);
+                return;
+        }
+        
     }
 
     utl::result<void> start() {
