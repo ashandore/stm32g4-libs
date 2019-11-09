@@ -26,9 +26,6 @@ enum class channel_id {
     CHANNEL_6 = TIM_CHANNEL_6
 };
 
-//FIXME: this should take a time unit as a policy.
-//TODO: make unit types & literals (handle conversions, etc)
-
 template <typename Precision>
 class source : public utl::driver::interface::driver {  
 public:  
@@ -153,16 +150,20 @@ public:
     void link_dma(channel_id_t channel, dma::channel& dma) {
         switch(channel) {
             case channel_id_t::CHANNEL_1:
-                dma.link(m_handle,TIM_DMA_ID_CC1);
+                m_handle.hdma[TIM_DMA_ID_CC1] = dma.handle();
+                dma.link(&m_handle);
                 return;
             case channel_id_t::CHANNEL_2:
-                dma.link(m_handle,TIM_DMA_ID_CC2);
+                m_handle.hdma[TIM_DMA_ID_CC2] = dma.handle();
+                dma.link(&m_handle);
                 return;
             case channel_id_t::CHANNEL_3:
-                dma.link(m_handle,TIM_DMA_ID_CC3);
+                m_handle.hdma[TIM_DMA_ID_CC3] = dma.handle();
+                dma.link(&m_handle);
                 return;
             case channel_id_t::CHANNEL_4:
-                dma.link(m_handle,TIM_DMA_ID_CC4);
+                m_handle.hdma[TIM_DMA_ID_CC4] = dma.handle();
+                dma.link(&m_handle);
                 return;
         }
         

@@ -95,46 +95,47 @@ protected:
         return utl::success();
     }
 public:
-    template<typename T>
-    void link(T& handle, uint16_t handler) {
-        __HAL_LINKDMA(&handle,hdma[handler],m_handle);
+    DMA_HandleTypeDef* handle() { return &m_handle; }
 
+    void link(void* handle) {
+        m_handle.Parent = handle;
 
+        //FIXME: all of this needs to go elsewhere!
         if(m_handle.Instance == DMA1_Channel1) {
-            HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 0, 0);
+            HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 2, 0);
             HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
         } else if(m_handle.Instance == DMA1_Channel2) {
-            HAL_NVIC_SetPriority(DMA1_Channel2_IRQn, 0, 0);
+            HAL_NVIC_SetPriority(DMA1_Channel2_IRQn, 2, 0);
             HAL_NVIC_EnableIRQ(DMA1_Channel2_IRQn);
         } else if(m_handle.Instance == DMA1_Channel3) {
-            HAL_NVIC_SetPriority(DMA1_Channel3_IRQn, 0, 0);
+            HAL_NVIC_SetPriority(DMA1_Channel3_IRQn, 2, 0);
             HAL_NVIC_EnableIRQ(DMA1_Channel3_IRQn);
         } else if(m_handle.Instance == DMA1_Channel4) {
-            HAL_NVIC_SetPriority(DMA1_Channel4_IRQn, 0, 0);
+            HAL_NVIC_SetPriority(DMA1_Channel4_IRQn, 2, 0);
             HAL_NVIC_EnableIRQ(DMA1_Channel4_IRQn);
         } else if(m_handle.Instance == DMA1_Channel5) {
-            HAL_NVIC_SetPriority(DMA1_Channel5_IRQn, 0, 0);
+            HAL_NVIC_SetPriority(DMA1_Channel5_IRQn, 2, 0);
             HAL_NVIC_EnableIRQ(DMA1_Channel5_IRQn);
         } else if(m_handle.Instance == DMA1_Channel6) {
-            HAL_NVIC_SetPriority(DMA1_Channel6_IRQn, 0, 0);
+            HAL_NVIC_SetPriority(DMA1_Channel6_IRQn, 2, 0);
             HAL_NVIC_EnableIRQ(DMA1_Channel6_IRQn);
         } else if(m_handle.Instance == DMA2_Channel1) {
-            HAL_NVIC_SetPriority(DMA2_Channel1_IRQn, 0, 0);
+            HAL_NVIC_SetPriority(DMA2_Channel1_IRQn, 2, 0);
             HAL_NVIC_EnableIRQ(DMA2_Channel1_IRQn);
         } else if(m_handle.Instance == DMA2_Channel2) {
-            HAL_NVIC_SetPriority(DMA2_Channel2_IRQn, 0, 0);
+            HAL_NVIC_SetPriority(DMA2_Channel2_IRQn, 2, 0);
             HAL_NVIC_EnableIRQ(DMA2_Channel2_IRQn);
         } else if(m_handle.Instance == DMA2_Channel3) {
-            HAL_NVIC_SetPriority(DMA2_Channel3_IRQn, 0, 0);
+            HAL_NVIC_SetPriority(DMA2_Channel3_IRQn, 2, 0);
             HAL_NVIC_EnableIRQ(DMA2_Channel3_IRQn);
         } else if(m_handle.Instance == DMA2_Channel4) {
-            HAL_NVIC_SetPriority(DMA2_Channel4_IRQn, 0, 0);
+            HAL_NVIC_SetPriority(DMA2_Channel4_IRQn, 2, 0);
             HAL_NVIC_EnableIRQ(DMA2_Channel4_IRQn);
         } else if(m_handle.Instance == DMA2_Channel5) {
-            HAL_NVIC_SetPriority(DMA2_Channel5_IRQn, 0, 0);
+            HAL_NVIC_SetPriority(DMA2_Channel5_IRQn, 2, 0);
             HAL_NVIC_EnableIRQ(DMA2_Channel5_IRQn);
         } else if(m_handle.Instance == DMA2_Channel6) {
-            HAL_NVIC_SetPriority(DMA2_Channel6_IRQn, 0, 0);
+            HAL_NVIC_SetPriority(DMA2_Channel6_IRQn, 2, 0);
             HAL_NVIC_EnableIRQ(DMA2_Channel6_IRQn);
         }
     }
