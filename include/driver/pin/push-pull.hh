@@ -1,14 +1,14 @@
 #ifndef STM32G4_DRIVER_PIN_PUSH_PULL_HH_
 #define STM32G4_DRIVER_PIN_PUSH_PULL_HH_
 
-#include <interface/driver/pin/push-pull.hh>
+#include <utl/interface/hal/pin/push-pull.hh>
 #include "driver/pin/output.hh"
 
 namespace stm32g4::driver::pin {
 
-class push_pull : public output, public virtual utl::driver::pin::interface::push_pull {
-    using direction = utl::driver::pin::direction;
-    using active_level = utl::driver::pin::active_level;
+class push_pull : public output, public virtual utl::hal::pin::interface::push_pull {
+    using direction = utl::hal::pin::direction;
+    using active_level = utl::hal::pin::active_level;
 public:
     push_pull(GPIO_TypeDef* port, uint16_t pin, active_level level, bool initial_state, 
         uint32_t pull, uint32_t speed)

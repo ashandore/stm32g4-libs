@@ -1,8 +1,8 @@
 #ifndef STM32G4_LIBS_WS2812_HH_
 #define STM32G4_LIBS_WS2812_HH_
 
-#include <utl.hh>
-#include <interface/driver/driver.hh>
+#include <utl/utl.hh>
+#include <utl/interface/hal/driver.hh>
 
 #include "hal.hh"
 #include "stm32g4xx_hal_dma.h"
@@ -46,7 +46,7 @@ struct decorate_dma_channel : T {
 //FIXME: might want to factor out some of the drawing responsibilities; this
 //class has too many things going on.
 template <uint32_t N_LEDS, typename Pwm, typename DmaChannel>
-class ws2812 : public utl::driver::interface::driver {
+class ws2812 : public utl::interface::hal::driver {
 public:
     using dma_channel_t = detail::ws2812::decorate_dma_channel<DmaChannel>;
     using pwm_channel_t = typename Pwm::dma_channel_t;

@@ -4,18 +4,18 @@
 #include "hal.hh"
 #include "stm32g4xx_hal_tim.h"
 #include "stm32g4xx_hal_tim_ex.h"
-#include <result.hh>
-#include <interface/driver/driver.hh>
-#include <interface/driver/pwm.hh>
+#include <utl/result.hh>
+#include <utl/interface/hal/driver.hh>
+#include <utl/interface/hal/pwm.hh>
 #include <driver/dma.hh>
-#include <utl.hh>
+#include <utl/utl.hh>
 
 extern "C" void HAL_TIM_MspPostInit(TIM_HandleTypeDef* timHandle);
 
 namespace stm32g4::driver::pwm {
 
 using namespace utl::literals;
-using polarity = utl::driver::pwm::interface::polarity;
+using polarity = utl::hal::pwm::interface::polarity;
 
 enum class channel_id {
     CHANNEL_1 = TIM_CHANNEL_1,
@@ -27,12 +27,12 @@ enum class channel_id {
 };
 
 template <typename Precision>
-class source : public utl::driver::interface::driver {  
+class source : public utl::interface::hal::driver {  
 public:  
-    using polarity_t = utl::driver::pwm::interface::polarity;
+    using polarity_t = utl::hal::pwm::interface::polarity;
     using channel_id_t = channel_id;
-    using channel_t = utl::driver::pwm::interface::channel<source>;
-    using dma_channel_t = utl::driver::pwm::interface::dma_channel<source, dma::channel>;
+    using channel_t = utl::hal::pwm::interface::channel<source>;
+    using dma_channel_t = utl::hal::pwm::interface::dma_channel<source, dma::channel>;
     using time_t = Precision;
 private:
     TIM_HandleTypeDef       m_handle;

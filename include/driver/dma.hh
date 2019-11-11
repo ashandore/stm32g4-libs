@@ -1,7 +1,7 @@
 #ifndef STM32G4_LIBS_DRIVER_DMA_HH_
 #define STM32G4_LIBS_DRIVER_DMA_HH_
 
-#include <utl.hh>
+#include <utl/utl.hh>
 #include "hal.hh"
 #include "dma-requests.hh"
 

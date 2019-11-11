@@ -2,7 +2,7 @@
 #define STM32G4_DRIVER_HAL_ERROR_HH_
 
 #include "stm32g4xx_hal_def.h"
-#include "error.hh"
+#include "utl/error.hh"
 
 namespace stm32g4 {
 

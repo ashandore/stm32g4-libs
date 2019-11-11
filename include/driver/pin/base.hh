@@ -4,7 +4,7 @@
 
 #include <board.h>
 #include <stm32g4xx_hal_gpio.h>
-#include <interface/driver/pin/base.hh>
+#include <utl/interface/hal/pin/base.hh>
 
 namespace stm32g4::driver::pin {
 
@@ -36,9 +36,9 @@ namespace stm32g4::driver::pin {
 //     FREQ_VERY_HIGH
 // };
 
-class base : public virtual utl::driver::pin::interface::base {
-    using direction = utl::driver::pin::direction;
-    using active_level = utl::driver::pin::active_level;
+class base : public virtual utl::hal::pin::interface::base {
+    using direction = utl::hal::pin::direction;
+    using active_level = utl::hal::pin::active_level;
 
     GPIO_TypeDef* const m_port;
     GPIO_InitTypeDef    m_handle;

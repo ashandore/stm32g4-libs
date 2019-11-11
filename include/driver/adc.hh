@@ -4,10 +4,10 @@
 #include "board.h" //FIXME: need to express this dependency more clearly.
 #include <stdio.h>
 #include <stdarg.h>
-#include <result.hh>
-#include <interface/driver/driver.hh>
+#include <utl/result.hh>
+#include <utl/interface/hal/driver.hh>
 #include "stm32g4xx_hal_adc.h"
-#include <system-error.hh>
+#include <utl/system-error.hh>
 
 
 namespace stm32g4::driver {
@@ -23,7 +23,7 @@ public:
     float supply() const { return m_adc.supply(); }
 };
 
-class adc : public utl::driver::interface::driver {
+class adc : public utl::interface::hal::driver {
 public:
     using adc_channel_t = adc_channel<adc>;
 private:

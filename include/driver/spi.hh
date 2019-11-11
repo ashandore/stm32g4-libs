@@ -4,10 +4,10 @@
 
 #include "hal.hh"
 #include "stm32g4xx_hal_spi.h"
-#include <result.hh>
-#include <interface/driver/driver.hh>
+#include <utl/result.hh>
+#include <utl/interface/hal/driver.hh>
 #include <driver/dma.hh>
-#include <utl.hh>
+#include <utl/utl.hh>
 
 namespace stm32g4::driver::spi {
 
@@ -68,7 +68,7 @@ struct decorated_rx_dma_channel : public dma::channel {
 
 
 //TODO: create a utl driver interface
-class dma_master : public utl::driver::interface::driver {
+class dma_master : public utl::interface::hal::driver {
 public:
     using tx_dma_channel_t = detail::decorated_tx_dma_channel;
     using rx_dma_channel_t = detail::decorated_rx_dma_channel;
@@ -99,11 +99,11 @@ private:
         resulting_clock = base_clock;
         while(resulting_clock > 0 and !clock_frequency.contains(utl::freq::Hz(resulting_clock))) resulting_clock /= 2;
 
-        if(resulting_clock < base_clock/256) {
-            return utl::system_error::UNKNOWN;
-        } else if(resulting_clock > base_clock/2) {
-            return utl::system_error::UNKNOWN;
-        } 
+        // if(resulting_clock < base_clock/256) {
+        //     return utl::system_error::UNKNOWN;
+        // } else if(resulting_clock > base_clock/2) {
+        //     return utl::system_error::UNKNOWN;
+        // } 
 
         switch(base_clock/resulting_clock) {
             case 2:
@@ -123,6 +123,7 @@ private:
             case 256:
                 return SPI_BAUDRATEPRESCALER_256;
             default:
+                utl::log("minimum achievable SPI clock is %d Hz (from %d Hz base)", base_clock/256, base_clock);
                 return utl::system_error::UNKNOWN;
         }
     }

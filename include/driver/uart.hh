@@ -7,15 +7,15 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <type-list.hh>
+#include <utl/type-list.hh>
 
-#include <result.hh>
-#include <interface/driver/driver.hh>
+#include <utl/result.hh>
+#include <utl/interface/hal/driver.hh>
 
 namespace stm32g4::driver {
 
 template <bool Use_Float>
-class uart : public utl::driver::interface::driver {
+class uart : public utl::interface::hal::driver {
 	mutable UART_HandleTypeDef m_handle;
 
 protected:

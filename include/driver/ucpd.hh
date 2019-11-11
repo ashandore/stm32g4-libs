@@ -3,7 +3,7 @@
 
 #include "stm32g4xx_ll_ucpd.h"
 #include "stm32g4xx_ll_pwr.h"
-#include <algorithm.hh>
+#include <utl/algorithm.hh>
 
 namespace stm32g4::driver {
 
