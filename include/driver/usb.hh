@@ -8,18 +8,20 @@
 #include <utl/interface/hal/driver.hh>
 #include <utl/hal/usb.hh>
 
-namespace stm32g4::driver::usb::device {
+namespace stm32g4::driver::usb::hid {
 
-class hid : public utl::interface::hal::driver {
+template <typename Report_t>
+class device : public utl::interface::hal::driver {
 public:
-
+    using report_t = Report_t;
 private:
     PCD_HandleTypeDef       m_usb_handle; //hpcd_USB_FS;
     USBD_HandleTypeDef      m_device_handle; //hUsbDeviceFS;
+    report_t                m_report;
 
 protected:
 
-    constexpr hid() : m_usb_handle{}, m_device_handle{}
+    constexpr device() : m_usb_handle{}, m_device_handle{}
     {}
 
     utl::result<void> validate()
@@ -49,25 +51,32 @@ public:
     // utl::result<detail::connection> connection() {
 
     // }
+    
+    utl::result<void> send_report(report_t report) {
+        m_report = report;
+        auto res = USBD_HID_SendReport(&m_device_handle, m_report.data, sizeof(m_report));
+        if(res != USBD_OK) return stm32g4::hal_error::ERROR;
+        return utl::success();
+    }
 
     bool dev_remote_wakeup() {
         return reinterpret_cast<USBD_HandleTypeDef*>(m_usb_handle.pData)->dev_remote_wakeup == 1;
     }
 
-    utl::hal::usbd::state state() {
+    utl::hal::usb::state state() {
         auto s = reinterpret_cast<USBD_HandleTypeDef*>(m_usb_handle.pData)->dev_state;
 
         switch(s) {
             case USBD_STATE_DEFAULT:
-                return utl::hal::usbd::state::DEFAULT;
+                return utl::hal::usb::state::DEFAULT;
             case USBD_STATE_ADDRESSED:
-                return utl::hal::usbd::state::ADDRESSED;
+                return utl::hal::usb::state::ADDRESSED;
             case USBD_STATE_CONFIGURED:
-                return utl::hal::usbd::state::CONFIGURED;
+                return utl::hal::usb::state::CONFIGURED;
             case USBD_STATE_SUSPENDED:
-                return utl::hal::usbd::state::SUSPENDED;
+                return utl::hal::usb::state::SUSPENDED;
             default:
-                return utl::hal::usbd::state::UNKNOWN;
+                return utl::hal::usb::state::UNKNOWN;
         }
     }
 
