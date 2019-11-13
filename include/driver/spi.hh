@@ -191,11 +191,11 @@ public:
         HAL_SPI_IRQHandler(&m_handle);
     }
 
-    utl::result<void> transact(uint8_t* write, uint8_t* receive, uint32_t length) {
+    utl::result<void> transact(volatile uint8_t* write, volatile uint8_t* receive, uint32_t length) {
         wait();
         auto res = HAL_SPI_TransmitReceive_DMA(&m_handle, 
-            write, 
-            receive, 
+            const_cast<uint8_t*>(write), 
+            const_cast<uint8_t*>(receive), 
             length
         );
 
