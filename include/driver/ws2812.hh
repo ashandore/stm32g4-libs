@@ -2,6 +2,7 @@
 #define STM32G4_LIBS_WS2812_HH_
 
 #include <utl/utl.hh>
+#include <utl/color.hh>
 #include <utl/interface/hal/driver.hh>
 
 #include "hal.hh"
@@ -9,24 +10,6 @@
 #include "stm32g4xx_hal_spi.h"
 
 namespace stm32g4::driver {
-
-struct color {
-    union {
-        struct {
-            uint8_t g;
-            uint8_t r;
-            uint8_t b;
-            uint8_t _;
-        };
-        uint32_t data;
-    };
-    constexpr color(uint8_t r, uint8_t g, uint8_t b) : g{g}, r{r}, b{b}, _{} {}
-    constexpr color() : g{0}, r{0}, b{0}, _{} {}
-};
-
-static constexpr color red = {0xff,0,0};
-static constexpr color green = {0,0xff,0};
-static constexpr color blue = {0,0,0xff};
 
 namespace detail::ws2812 {
 
@@ -45,7 +28,7 @@ struct decorate_dma_channel : T {
 
 //FIXME: might want to factor out some of the drawing responsibilities; this
 //class has too many things going on.
-template <uint32_t N_LEDS, typename Pwm, typename DmaChannel>
+template <uint32_t N_LEDS, typename Pwm, typename DmaChannel, typename Color_t = utl::color::rgb>
 class ws2812 : public utl::interface::hal::driver {
 public:
     using dma_channel_t = detail::ws2812::decorate_dma_channel<DmaChannel>;
@@ -57,14 +40,14 @@ private:
     Pwm&                            m_pwm_source;
     pwm_channel_t&                  m_pwm_channel;
     dma_channel_t&                  m_dma_channel;
-    color                           m_rgb_data[N_LEDS];
+    Color_t                         m_color_data[N_LEDS];
     //FIXME: express the reset time at the beginning more clearly.
     mutable uint16_t                m_write_buffer[N_LEDS*3*8 + 10];
 protected:
 
     ws2812(Pwm& pwm_source, pwm_channel_t& pwm_channel, dma_channel_t& dma_channel)
         : m_pwm_source{pwm_source}, m_pwm_channel{pwm_channel}, m_dma_channel{dma_channel},
-        m_rgb_data{}, m_write_buffer{}
+        m_color_data{}, m_write_buffer{}
     {
         m_pwm_channel.set_polarity(Pwm::polarity_t::ACTIVE_LOW);
         m_pwm_source.set_period(1250_ns);
@@ -84,7 +67,7 @@ protected:
         }
     }
 public:
-    color& operator[](size_t idx) { return m_rgb_data[idx]; }
+    Color_t& operator[](size_t idx) { return m_color_data[idx]; }
 
     constexpr size_t count() const { return N_LEDS; }
 
@@ -95,14 +78,16 @@ public:
     utl::result<void> write() const {
         uint16_t active_light = N_LEDS;
         uint8_t bit = 0;
+        const uint8_t skip_first = 9;
 
         while(active_light) {
             while(bit < 24) {
+                uint32_t bit_shift = 23 - bit;
                 uint32_t read_index = active_light - 1;
-                uint32_t write_index = read_index*24 + bit;
-                m_write_buffer[write_index + 9] 
-                    = get_width((m_rgb_data[read_index].data >> bit) & 0b1);
-                bit++;
+                uint32_t write_index = (N_LEDS - read_index - 1)*24 + bit + skip_first;
+                m_write_buffer[write_index] 
+                    = get_width((static_cast<utl::color::rgb>(m_color_data[read_index]).data >> bit_shift) & 0b1);
+                bit++;                
 
                 
             }
