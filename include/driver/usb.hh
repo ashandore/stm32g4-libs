@@ -21,7 +21,7 @@ private:
 
 protected:
 
-    constexpr device() : m_usb_handle{}, m_device_handle{}
+    constexpr device() : m_usb_handle{}, m_device_handle{}, m_report{}
     {}
 
     utl::result<void> validate()
@@ -53,7 +53,8 @@ public:
     // }
     
     utl::result<void> send_report(report_t report) {
-        m_report = report;
+        m_report = report; 
+
         auto res = USBD_HID_SendReport(&m_device_handle, m_report.data, sizeof(m_report));
         if(res != USBD_OK) return stm32g4::hal_error::ERROR;
         return utl::success();
@@ -63,6 +64,7 @@ public:
         return reinterpret_cast<USBD_HandleTypeDef*>(m_usb_handle.pData)->dev_remote_wakeup == 1;
     }
 
+    #pragma clang optimize off
     utl::hal::usb::state state() {
         auto s = reinterpret_cast<USBD_HandleTypeDef*>(m_usb_handle.pData)->dev_state;
 
@@ -79,6 +81,7 @@ public:
                 return utl::hal::usb::state::UNKNOWN;
         }
     }
+    #pragma clang optimize on
 
     void service() {
         HAL_PCD_IRQHandler(&m_usb_handle);
